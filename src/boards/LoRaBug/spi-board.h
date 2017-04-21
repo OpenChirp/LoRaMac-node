@@ -1,29 +1,24 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Bleeper board SPI driver implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/**
+ * This is the HAL implementation of SPI.
+ * @author Craig Hesling
+ * @date Jan 7, 2017
+ */
 #ifndef __SPI_MCU_H__
 #define __SPI_MCU_H__
+
+#include <ti/drivers/SPI.h>
+#include "gpio.h"
 
 /*!
  * SPI driver structure definition
  */
 struct Spi_s
 {
-    SPI_HandleTypeDef Spi;
-    Gpio_t Mosi;
-    Gpio_t Miso;
-    Gpio_t Sclk;
+    SPI_Handle Spi;
+    SPI_Params Params;
+//    Gpio_t Mosi;
+//    Gpio_t Miso;
+//    Gpio_t Sclk;
     Gpio_t Nss;
 };
 
