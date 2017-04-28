@@ -8,6 +8,7 @@
 #define __SPI_MCU_H__
 
 #include <ti/drivers/SPI.h>
+#include <ti/sysbios/gates/GateMutexPri.h>
 #include "gpio.h"
 
 /*!
@@ -17,6 +18,8 @@ struct Spi_s
 {
     SPI_Handle Spi;
     SPI_Params Params;
+    GateMutexPri_Struct gmutex;
+    GateMutexPri_Params gmutexParams;
     Gpio_t Nss;
 };
 
