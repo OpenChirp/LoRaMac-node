@@ -15,6 +15,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #include <ti/sysbios/knl/Task.h>
 #include <ti/sysbios/knl/Mailbox.h>
+#include <ti/sysbios/hal/Hwi.h>
 #include <ti/sysbios/BIOS.h> // BIOS_WAIT_FOREVER
 
 /* XDCtools Header files */
@@ -156,7 +157,7 @@ void BoardInitMcu(void)
     }
 
     GpioMcuInitInterrupt();
-    SpiInit( &SX1276.Spi, Board_SX_MOSI, Board_SX_MISO, Board_SX_SCK, NC );
+    SpiInit( &SX1276.Spi, (PinNames)Board_SX_MOSI, (PinNames)Board_SX_MISO, (PinNames)Board_SX_SCK, (PinNames)NC );
     SX1276IoInit( );
 
     /* Start LoRa Task */

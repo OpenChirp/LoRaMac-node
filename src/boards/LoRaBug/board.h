@@ -63,7 +63,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
  * Board MCU pins definitions
  */
 
-#define RADIO_RESET                                 Board_SX_RESET
+#define RADIO_RESET                                 ((PinNames)Board_SX_RESET)
 
 
 enum BoardPowerSource

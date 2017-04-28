@@ -60,14 +60,16 @@ Gpio_t AntSwitchDM;
 
 void SX1276IoInit( void )
 {
-    GpioInit( &SX1276.Spi.Nss, Board_SX_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+    // We will ignore the PinNames enum scheme, since we have
+    // already enumerated pins and their roles elsewhere
+    GpioInit( &SX1276.Spi.Nss, (PinNames)Board_SX_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
 
-    GpioInit( &SX1276.DIO0, Board_SX_DIO0, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO1, Board_SX_DIO1, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO2, Board_SX_DIO2, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO3, Board_SX_DIO3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO4, Board_SX_DIO4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO5, Board_SX_DIO5, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GpioInit( &SX1276.DIO0, (PinNames)Board_SX_DIO0, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GpioInit( &SX1276.DIO1, (PinNames)Board_SX_DIO1, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GpioInit( &SX1276.DIO2, (PinNames)Board_SX_DIO2, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GpioInit( &SX1276.DIO3, (PinNames)Board_SX_DIO3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GpioInit( &SX1276.DIO4, (PinNames)Board_SX_DIO4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    GpioInit( &SX1276.DIO5, (PinNames)Board_SX_DIO5, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
 }
 
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
@@ -82,14 +84,14 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
 
 void SX1276IoDeInit( void )
 {
-    GpioInit( &SX1276.Spi.Nss, Board_SX_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &SX1276.Spi.Nss, (PinNames)Board_SX_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
-    GpioInit( &SX1276.DIO0, Board_SX_DIO0, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO1, Board_SX_DIO1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO2, Board_SX_DIO2, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO3, Board_SX_DIO3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO4, Board_SX_DIO4, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO5, Board_SX_DIO5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO0, (PinNames)Board_SX_DIO0, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO1, (PinNames)Board_SX_DIO1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO2, (PinNames)Board_SX_DIO2, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO3, (PinNames)Board_SX_DIO3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO4, (PinNames)Board_SX_DIO4, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO5, (PinNames)Board_SX_DIO5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
 void SX1276SetRfTxPower( int8_t power )
@@ -187,14 +189,14 @@ void SX1276SetAntSwLowPower( bool status )
 
 void SX1276AntSwInit( void )
 {
-    GpioInit( &AntSwitchDP, Board_SX_RF_CTRL1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-    GpioInit( &AntSwitchDM, Board_SX_RF_CTRL2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &AntSwitchDP, (PinNames)Board_SX_RF_CTRL1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
+    GpioInit( &AntSwitchDM, (PinNames)Board_SX_RF_CTRL2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
 void SX1276AntSwDeInit( void )
 {
-    GpioInit( &AntSwitchDP, Board_SX_RF_CTRL1, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-    GpioInit( &AntSwitchDM, Board_SX_RF_CTRL2, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+    GpioInit( &AntSwitchDP, (PinNames)Board_SX_RF_CTRL1, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+    GpioInit( &AntSwitchDM, (PinNames)Board_SX_RF_CTRL2, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
 }
 
 void SX1276SetAntSw( uint8_t opMode )
