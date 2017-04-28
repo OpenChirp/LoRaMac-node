@@ -9,3 +9,8 @@ To upgrade in the future, run meld against the SensorNode directory tree.
 
 # Terms
 * IOE - IO Expander. This refers to the optional SX1509 I2C IO Expander.
+
+# TI-RTOS SYS/BIOS Required Modules
+- Clock
+- Mailbox
+- GateMutexPri
