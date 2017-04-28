@@ -21,6 +21,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <xdc/runtime/System.h>
 #include <xdc/runtime/Error.h> // Error_Block
 
+#include <stdbool.h>
 #include <assert.h>
 #include "gpio-board.h"
 #include "board.h"
@@ -45,70 +46,6 @@ static Mailbox_Handle clbkkMbox;
 //#define         ID3                                 ( 0x1FF80064 )
 
 /*!
- * IO Extander pins objects
- */
-//Gpio_t IrqMpl3115;
-//Gpio_t IrqMag3110;
-//Gpio_t GpsPowerEn;
-//Gpio_t RadioPushButton;
-//Gpio_t BoardPowerDown;
-//Gpio_t NcIoe5;
-//Gpio_t NcIoe6;
-//Gpio_t NcIoe7;
-//Gpio_t NIrqSx9500;
-//Gpio_t Irq1Mma8451;
-//Gpio_t Irq2Mma8451;
-//Gpio_t TxEnSx9500;
-//Gpio_t Led1;
-//Gpio_t Led2;
-//Gpio_t Led3;
-//Gpio_t Led4;
-
-
-/*
- * MCU objects
- */
-//Gpio_t GpsPps;
-//Gpio_t GpsRx;
-//Gpio_t GpsTx;
-//Gpio_t UsbDetect;
-//Gpio_t Wkup1;
-//Gpio_t DcDcEnable;
-//Gpio_t BatVal;
-
-//Adc_t Adc;
-//I2c_t I2c;
-//Uart_t Uart1;
-//#if defined( USE_USB_CDC )
-//Uart_t UartUsb;
-//#endif
-
-///*!
-// * Initializes the unused GPIO to a know status
-// */
-//static void BoardUnusedIoInit( void );
-//
-///*!
-// * System Clock Configuration
-// */
-//static void SystemClockConfig( void );
-//
-///*!
-// * Used to measure and calibrate the system wake-up time from STOP mode
-// */
-//static void CalibrateSystemWakeupTime( void );
-//
-///*!
-// * System Clock Re-Configuration when waking up from STOP mode
-// */
-//static void SystemClockReConfig( void );
-//
-///*!
-// * Timer used at first boot to calibrate the SystemWakeupTime
-// */
-//static TimerEvent_t CalibrateSystemWakeupTimeTimer;
-
-/*!
  * Flag to indicate if the MCU is Initialized
  */
 static bool McuInitialized = false;
@@ -126,6 +63,10 @@ static bool McuInitialized = false;
 //    SystemWakeupTimeCalibrated = true;
 //}
 
+
+static bool hwi_disabled = 0;
+static xdc_UInt hwi_restore_key;
+
 /*!
  * Nested interrupt counter.
  *
@@ -136,21 +77,29 @@ static uint8_t IrqNestLevel = 0;
 /**
  * TODO: Make these only Enable/Disable the GPIO IRQs
  */
-void BoardDisableIrq( void )
+void BoardDisableIrq(void)
 {
-    __disable_irq( );
+    if (!hwi_disabled)
+    {
+        hwi_restore_key = Hwi_disable();
+        hwi_disabled = true;
+    }
     IrqNestLevel++;
 }
 
 /**
  * TODO: Make these only Enable/Disable the GPIO IRQs
  */
-void BoardEnableIrq( void )
+void BoardEnableIrq(void)
 {
     IrqNestLevel--;
-    if( IrqNestLevel == 0 )
+    if (IrqNestLevel == 0)
     {
-        __enable_irq( );
+        if (hwi_disabled)
+        {
+            Hwi_restore(hwi_restore_key);
+            hwi_disabled = false;
+        }
     }
 }
 
@@ -215,7 +164,7 @@ void BoardInitMcu(void)
     Task_Params_init(&loraTaskParams);
     loraTaskParams.stackSize = LORATASKSTACKSIZE;
     loraTaskParams.stack = &loraTaskStack;
-    loraTaskParams.priority = 1;
+    loraTaskParams.priority = 2;
     Task_construct(&loraTaskStruct, (Task_FuncPtr) loraTaskFxn, &loraTaskParams,
                    NULL);
 
@@ -227,36 +176,7 @@ void BoardInitMcu(void)
 //            CalibrateSystemWakeupTime( );
 //        }
     }
-//    if( McuInitialized == false )
-//    {
-//#if defined( USE_BOOTLOADER )
-//        // Set the Vector Table base location at 0x3000
-//        SCB->VTOR = FLASH_BASE | 0x3000;
-//#endif
-//        HAL_Init( );
-//
-//        SystemClockConfig( );
-//
-//#if defined( USE_USB_CDC )
-//        UartInit( &UartUsb, UART_USB_CDC, NC, NC );
-//        UartConfig( &UartUsb, RX_TX, 115200, UART_8_BIT, UART_1_STOP_BIT, NO_PARITY, NO_FLOW_CTRL );
-//
-//        DelayMs( 1000 ); // 1000 ms for Usb initialization
-//#endif
-//
-//        RtcInit( );
-//
-//        BoardUnusedIoInit( );
-//
-//        I2cInit( &I2c, I2C_SCL, I2C_SDA );
-//
-//        GpioInit( &UsbDetect, USB_ON, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-//        GpioInit( &BatVal, BAT_LEVEL, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-//    }
-//    else
-//    {
-//        SystemClockReConfig( );
-//    }
+
 }
 
 void BoardDeInitMcu( void )
@@ -528,19 +448,13 @@ static void loraTaskFxn(UArg arg0, UArg arg1)
 {
     while (1)
     {
-        // HACK
-//        GpioMcuHandleInterrupt(BIOS_WAIT_FOREVER);
-//        GpioMcuHandleInterrupt(TIME_MS * 10);
-
-//        GpioMcuHandleInterrupt(100);
-//        HackTimerMakeCallback();
         isr_worker_t callback;
-        if(!Mailbox_pend(clbkkMbox, (Ptr)(&callback),BIOS_WAIT_FOREVER)) {
+        if(!Mailbox_pend(clbkkMbox, (Ptr)(&callback), BIOS_WAIT_FOREVER)) {
             System_abort("Failed to pend on LoRa ISR callback mailbox\n");
         }
-//        printf("Launch isr clbk: 0x%X\n", callback);
 //        assert(callback);
         callback();
+        printf("Launched isr clbk: 0x%X\n", callback);
     }
 }
 

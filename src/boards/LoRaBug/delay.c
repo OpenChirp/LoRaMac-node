@@ -1,24 +1,15 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
-
-Description: Delay functions implementation
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
+/**
+ * Delay functions implementation
+ *
+ * @author Craig Hesling <craig@hesling.com>
+ * @date April 26, 2017
+ */
 
 #include <ti/sysbios/knl/Task.h>
 #include <ti/sysbios/knl/Clock.h>
 
+#include "board.h"
 #include "delay.h"
-
-#define TIME_MS (1000/Clock_tickPeriod)
 
 void Delay( float s )
 {

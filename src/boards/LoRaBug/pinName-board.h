@@ -2,9 +2,10 @@
  * This file expresses all possible CC2650 GPIO names.
  * These are used in the definition of the PinName enum in \a board.h
  *
- * @author Craig Hesling
+ * @author Craig Hesling <craig@hesling.com>
  * @date Jan 7, 2017
  */
+
 #ifndef __PIN_NAME_MCU_H__
 #define __PIN_NAME_MCU_H__
 

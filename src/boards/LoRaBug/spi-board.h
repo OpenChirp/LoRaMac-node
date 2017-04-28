@@ -3,6 +3,7 @@
  * @author Craig Hesling
  * @date Jan 7, 2017
  */
+
 #ifndef __SPI_MCU_H__
 #define __SPI_MCU_H__
 
@@ -16,9 +17,6 @@ struct Spi_s
 {
     SPI_Handle Spi;
     SPI_Params Params;
-//    Gpio_t Mosi;
-//    Gpio_t Miso;
-//    Gpio_t Sclk;
     Gpio_t Nss;
 };
 

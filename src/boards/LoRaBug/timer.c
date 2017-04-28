@@ -1,17 +1,10 @@
-/*
- / _____)             _              | |
-( (____  _____ ____ _| |_ _____  ____| |__
- \____ \| ___ |    (_   _) ___ |/ ___)  _ \
- _____) ) ____| | | || |_| ____( (___| | | |
-(______/|_____)_|_|_| \__)_____)\____)_| |_|
-    (C)2013 Semtech
+/**
+ * Holds timer objects and scheduling primitives
+ *
+ * @author Craig Hesling <craig@hesling.com>
+ * @date April 26, 2017
+ */
 
-Description: Timer objects and scheduling management
-
-License: Revised BSD License, see LICENSE.TXT file include in the project
-
-Maintainer: Miguel Luis and Gregory Cristian
-*/
 #include <ti/sysbios/knl/Clock.h>
 #include <xdc/runtime/Timestamp.h>
 #include <xdc/std.h>
@@ -22,11 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include "board.h"
 #include "timer.h"
 
-//#include "board.h"
 
 //#include "rtc-board.h"
-
-#define TIME_MS (1000/Clock_tickPeriod)
 
 /*!
  * This flag is used to make sure we have looped through the main several time to avoid race issues
@@ -82,9 +72,6 @@ Maintainer: Miguel Luis and Gregory Cristian
  */
 //TimerTime_t TimerGetValue( void );
 
-// HACK
-void (*callme)(void) = NULL;
-
 /**
  * This is the callback proxy for all registered
  * @param arg0
@@ -93,8 +80,6 @@ Void timerCallback(UArg arg0)
 {
     assert(arg0);
     // again we have the swi callback problem
-//    ((void (*)(void))arg0)();
-//    callme = ((void (*)(void))arg0);
     ScheduleISRCallback((isr_worker_t)arg0);
 }
 
@@ -316,17 +301,5 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 //                RtcEnterLowPowerStopMode( );
 //            }
 //        }
-//    }
-//}
-
-
-//#include <stdio.h>
-//// HACK
-//void HackTimerMakeCallback()
-//{
-//    if (callme) {
-//        printf("Calling callme\n");
-//        callme();
-//        callme = NULL;
 //    }
 //}
