@@ -33,6 +33,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 static Task_Struct loraTaskStruct;
 static Char loraTaskStack[LORATASKSTACKSIZE];
 static void loraTaskFxn(UArg arg0, UArg arg1);
+static void StartLoraTask();
 
 #define ISR_WORKER_QUEUE_SIZE 10
 static Mailbox_Handle clbkkMbox;
@@ -160,14 +161,7 @@ void BoardInitMcu(void)
     SpiInit( &SX1276.Spi, (PinNames)Board_SX_MOSI, (PinNames)Board_SX_MISO, (PinNames)Board_SX_SCK, (PinNames)NC );
     SX1276IoInit( );
 
-    /* Start LoRa Task */
-    Task_Params loraTaskParams;
-    Task_Params_init(&loraTaskParams);
-    loraTaskParams.stackSize = LORATASKSTACKSIZE;
-    loraTaskParams.stack = &loraTaskStack;
-    loraTaskParams.priority = 2;
-    Task_construct(&loraTaskStruct, (Task_FuncPtr) loraTaskFxn, &loraTaskParams,
-                   NULL);
+    StartLoraTask();
 
     if( McuInitialized == false )
     {
@@ -436,7 +430,17 @@ uint8_t GetBoardPowerSource( void )
 //#endif
 }
 
-#define TIME_MS (1000/Clock_tickPeriod)
+static void StartLoraTask() {
+    /* Start LoRa Task */
+    Task_Params loraTaskParams;
+    Task_Params_init(&loraTaskParams);
+    loraTaskParams.stackSize = LORATASKSTACKSIZE;
+    loraTaskParams.stack = &loraTaskStack;
+    loraTaskParams.priority = 3;
+    //loraTaskParams.instance->name = "lora_radio_task";
+    Task_construct(&loraTaskStruct, (Task_FuncPtr) loraTaskFxn, &loraTaskParams,
+                   NULL);
+}
 
 void ScheduleISRCallback(isr_worker_t callback) {
     assert(callback);
@@ -453,9 +457,8 @@ static void loraTaskFxn(UArg arg0, UArg arg1)
         if(!Mailbox_pend(clbkkMbox, (Ptr)(&callback), BIOS_WAIT_FOREVER)) {
             System_abort("Failed to pend on LoRa ISR callback mailbox\n");
         }
-//        assert(callback);
+        assert(callback);
         callback();
-        printf("Launched isr clbk: 0x%X\n", callback);
     }
 }
 
