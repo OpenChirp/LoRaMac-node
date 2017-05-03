@@ -19,7 +19,6 @@ struct Spi_s
     SPI_Handle Spi;
     SPI_Params Params;
     GateMutexPri_Struct gmutex;
-    GateMutexPri_Params gmutexParams;
     Gpio_t Nss;
 };
 

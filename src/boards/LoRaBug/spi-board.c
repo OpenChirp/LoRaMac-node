@@ -23,8 +23,7 @@ void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames 
     SPI_Params_init(&obj->Params);
     obj->Params.transferMode = SPI_MODE_BLOCKING;
 
-    GateMutexPri_Params_init(&obj->gmutexParams);
-    GateMutexPri_construct(&obj->gmutex, &obj->gmutexParams);
+    GateMutexPri_construct(&obj->gmutex, NULL);
 
     // this doesn't feel right, but they did it this way above
     SpiFormat( obj, 8, 0, 0, 0 ); // want 8bit, SPI_POL0_PHA0, SPI_MASTER
