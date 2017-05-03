@@ -63,10 +63,13 @@ void GpioMcuInit(Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config,
         {
         case PIN_NO_PULL:
             pconfig |= PIN_NOPULL;
+            break;
         case PIN_PULL_UP:
             pconfig |= PIN_PULLUP;
+            break;
         case PIN_PULL_DOWN:
             pconfig |= PIN_PULLDOWN;
+            break;
         }
     }
 
@@ -128,12 +131,16 @@ void GpioMcuSetInterrupt(Gpio_t *obj, IrqModes irqMode,
     {
     case NO_IRQ:
         config |= PIN_IRQ_DIS;
+        break;
     case IRQ_RISING_EDGE:
-        config |= PIN_IRQ_NEGEDGE;
-    case IRQ_FALLING_EDGE:
         config |= PIN_IRQ_POSEDGE;
+        break;
+    case IRQ_FALLING_EDGE:
+        config |= PIN_IRQ_NEGEDGE;
+        break;
     case IRQ_RISING_FALLING_EDGE:
         config |= PIN_IRQ_BOTHEDGES;
+        break;
     }
     index = irqPinId2Index(obj->pinIndex);
     if (index < 0)
