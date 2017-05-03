@@ -25,6 +25,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #include <stdbool.h>
 #include <assert.h>
 #include "gpio-board.h"
+#include "cc26xx/system.h"
 #include "board.h"
 
 
@@ -194,20 +195,17 @@ uint32_t BoardGetRandomSeed( void )
 {
 	/// @todo Fetch some random seed, maybe based on unique ID or random hardware.
 //    return ( ( *( uint32_t* )ID1 ) ^ ( *( uint32_t* )ID2 ) ^ ( *( uint32_t* )ID3 ) );
-    return 0x34233566;
+    return (uint32_t)(FCFG1_MAC_15_4_Addr() & 0xFFFFFFFF);
 }
 
+/**
+ * We use the factory IEEE 15.4 address
+ * @param id The 8 byte unique id
+ */
 void BoardGetUniqueId( uint8_t *id )
 {
-	/// @todo Fetch CC2650 board unique ID
-    id[7] = 0x01;
-    id[6] = 0x02;
-    id[5] = 0x03;
-    id[4] = 0x04;
-    id[3] = 0x05;
-    id[2] = 0x06;
-    id[1] = 0x07;
-    id[0] = 0x08;
+    // Previously, we set id[7] through id[0] byte by byte
+	*((uint64_t *)id) = FCFG1_MAC_15_4_Addr();
 }
 
 ///*!
