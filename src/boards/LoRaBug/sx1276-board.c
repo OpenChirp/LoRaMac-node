@@ -55,8 +55,8 @@ const struct Radio_s Radio =
 /*!
  * Antenna switch GPIO pins objects
  */
-Gpio_t AntSwitchDP;
-Gpio_t AntSwitchDM;
+static Gpio_t AntSwitchDP;
+static Gpio_t AntSwitchDM;
 
 void SX1276IoInit( void )
 {

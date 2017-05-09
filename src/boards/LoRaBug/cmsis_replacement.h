@@ -1,9 +1,11 @@
-/*
- * cmsis_replacement.h
+/**
+ * This library aims to fill in compatibility for code that uses certain
+ * cmsis functions that are not offered by SYS/BIOS and TI-RTOS.
  *
- *  Created on: Jan 8, 2017
- *      Author: Craig Hesling <craig@hesling.com>
+ * @author Craig Hesling
+ * @date Jan 8, 2017
  */
+
 
 #ifndef LORABUG_CMSIS_REPLACEMENT_H_
 #define LORABUG_CMSIS_REPLACEMENT_H_

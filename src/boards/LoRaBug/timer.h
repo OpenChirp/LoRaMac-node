@@ -17,14 +17,6 @@ Maintainer: Miguel Luis and Gregory Cristian
 
 #include <ti/sysbios/knl/Clock.h>
 
-///*!
-// * \brief Timer object description
-// */
-//typedef struct TimerEvent_s
-//{
-//    void ( *Callback )( void ); //! Timer IRQ callback function
-//}TimerEvent_t;
-
 /*!
  * \brief Timer object description
  */
@@ -109,7 +101,5 @@ TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture );
  * \brief Manages the entry into ARM cortex deep-sleep mode
  */
 //void TimerLowPowerHandler( void );
-
-void HackTimerMakeCallback();
 
 #endif  // __TIMER_H__

@@ -6,7 +6,7 @@
  */
 
 #include <ti/sysbios/knl/Clock.h>
-#include <xdc/runtime/Timestamp.h>
+//#include <xdc/runtime/Timestamp.h> // Currently using Clock_getTicks() instead
 #include <xdc/std.h>
 #include <driverlib/debug.h>
 

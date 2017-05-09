@@ -7,7 +7,6 @@
 
 #include "board.h"
 #include "spi-board.h"
-//#include "stm32l1xx_hal_spi.h"
 
 #include <xdc/runtime/System.h>
 #include <ti/drivers/PIN.h>
