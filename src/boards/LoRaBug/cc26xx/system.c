@@ -14,6 +14,8 @@
 #include <inc/hw_ccfg.h>
 #include <inc/hw_fcfg1.h>
 
+#include <driverlib/aon_batmon.h>
+
 #include <inc/hw_ints.h> // INT_TRNG_IRQ
 #include <inc/hw_trng.h>
 #include <driverlib/trng.h>
@@ -43,6 +45,33 @@ uint64_t FCFG1_MAC_BLE_Addr() {
     uint32_t lsw = HWREG(FCFG1_BASE + FCFG1_O_MAC_BLE_0); // [31:0]
     uint32_t msw = HWREG(FCFG1_BASE + FCFG1_O_MAC_BLE_1); // [63:32]
     return (((uint64_t)msw)<<32) | ((uint64_t)lsw);
+}
+
+/* Temp and Battery Voltage */
+
+/**
+ * Enables BatMon, spins until new battery measurement takes place, and disables BatMon.
+ *
+ * A voltage of 3.3V would be 0b000000000000000000000_011_00000011
+ *
+ * @return Returns integer and fractional Voltage (bits [10:8] integer, [7:0] fraction)
+ * @see AONBatMonBatteryVoltageGet
+ */
+uint32_t PollBatteryVoltage() {
+	uint32_t reading;
+	// AON Battery Monitor is enabled at boot and is recommended not to disable
+	// See CC2650 Manual 18.1
+//	AONBatMonEnable();
+	while(!AONBatMonNewBatteryMeasureReady()) ;
+	reading = AONBatMonBatteryVoltageGet();
+//	AONBatMonDisable();
+	return reading;
+}
+
+uint32_t PollTemperature() {
+	while (!AONBatMonNewTempMeasureReady()) ;
+	//TODO: Implement Temperature Fetching
+	return 0;
 }
 
 /* TRNG */

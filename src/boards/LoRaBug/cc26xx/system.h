@@ -22,6 +22,29 @@ inline uint64_t CCFG_IEEE_BLE_Addr();
 inline uint64_t FCFG1_MAC_15_4_Addr();
 inline uint64_t FCFG1_MAC_BLE_Addr();
 
+/* Temp and Battery Voltage */
+
+/**
+ * Enables BatMon, spins until new battery measurement takes place, and disables BatMon.
+ *
+ * A voltage of 3.5V would be 0b000000000000000000000_011_00000101
+ * Use \ref VOLTAGE_WHOLE to get the 3 component and \ref VOLTAGE_FRAC to get the 5 component.
+ * Example: printf("Battery Voltage is %1.1u.%uV\n", VOLTAGE_WHOLE(value), VOLTAGE_FRAC(value));
+ *
+ * @return Returns integer and fractional Voltage (bits [10:8] integer, [7:0] fraction)
+ * @see AONBatMonBatteryVoltageGet
+ */
+uint32_t PollBatteryVoltage();
+
+/**@def VOLTAGE_WHOLE
+ * Returns the decimal whole integer component of the battery voltage value
+ */
+#define VOLTAGE_WHOLE(value) (((value)>>8)&0x07)
+/**@def VOLTAGE_FRAC
+ * Returns the decimal fractional component of the battery voltage value
+ */
+#define VOLTAGE_FRAC(value) ((value)&0xFF)
+
 /* TRNG */
 
 /**
