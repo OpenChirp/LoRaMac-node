@@ -74,8 +74,4 @@ void GpioMcuToggle( Gpio_t *obj );
  */
 uint32_t GpioMcuRead( Gpio_t *obj );
 
-void GpioMcuInitInterrupt();
-
-void GpioMcuHandleInterrupt(UInt32 timeout);
-
 #endif // __GPIO_MCU_H__
