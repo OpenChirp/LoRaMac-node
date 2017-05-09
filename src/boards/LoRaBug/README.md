@@ -14,3 +14,4 @@ To upgrade in the future, run meld against the SensorNode directory tree.
 - Clock
 - Mailbox
 - GateMutexPri
+- Event (cc26xx/system.c)
