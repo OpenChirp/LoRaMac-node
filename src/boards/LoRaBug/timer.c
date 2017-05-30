@@ -73,7 +73,7 @@
 //TimerTime_t TimerGetValue( void );
 
 /**
- * This is the callback proxy for all registered
+ * This is the callback proxy for all registered timers
  * @param arg0
  */
 Void timerCallback(UArg arg0)
