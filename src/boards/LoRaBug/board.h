@@ -30,6 +30,7 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #include "sx1276-board.h"
 #include "cmsis_replacement.h"
 #include <LORABUG_V3.1.h>
+#include <driverlib/aon_batmon.h> //Battery readings
 
 //////// DEBUG STUFF ////////////
 #include "io.h"
@@ -112,7 +113,7 @@ uint8_t BoardMeasurePotiLevel( void );
 /*!
  * \brief Measure the Battery voltage
  *
- * \retval value  battery voltage in volts
+ * \retval value  battery voltage in milivolts
  */
 uint32_t BoardGetBatteryVoltage( void );
 
