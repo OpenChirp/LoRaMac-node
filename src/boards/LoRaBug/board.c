@@ -156,64 +156,57 @@ void BoardGetUniqueId( uint8_t *id )
 ///*!
 // * Battery thresholds
 // */
-//#define BATTERY_MAX_LEVEL                           4150 // mV
-//#define BATTERY_MIN_LEVEL                           3200 // mV
-//#define BATTERY_SHUTDOWN_LEVEL                      3100 // mV
+#define BATTERY_MAX_LEVEL                           3140 // mV
+#define BATTERY_MIN_LEVEL                           2000 // mV
 
-//uint16_t BoardGetPowerSupply( void )
-//{
-//    float vref = 0;
-//    float vdiv = 0;
-//    float batteryVoltage = 0;
-//
-//    AdcInit( &Adc, BAT_LEVEL );
-//
-//    vref = AdcMcuRead( &Adc, ADC_CHANNEL_17 );
-//    vdiv = AdcMcuRead( &Adc, ADC_CHANNEL_8 );
-//
-//    batteryVoltage = ( FACTORY_POWER_SUPPLY * VREFINT_CAL * vdiv ) / ( vref * ADC_MAX_VALUE );
-//
-//    //                                vDiv
-//    // Divider bridge  VBAT <-> 1M -<--|-->- 1M <-> GND => vBat = 2 * vDiv
-//    batteryVoltage = 2 * batteryVoltage;
-//
-//    return ( uint16_t )( batteryVoltage * 1000 );
-//}
+uint32_t BoardGetBatteryVoltage( void )
+{
 
+	// Read the battery voltage (V), only the first 12 bits
+	uint16_t voltage = (uint16_t)AONBatMonBatteryVoltageGet();
+
+	// Convert to from V to mV to avoid fractions.
+	// Fractional part is in the lower 8 bits thus converting is done as follows:
+	// (1/256)/(1/1000) = 1000/256 = 125/32
+	// This is done most effectively by multiplying by 125 and then shifting
+	// 5 bits to the right.
+	voltage = (voltage * 125) >> 5;
+	return voltage;
+
+}
+
+/* \brief Get the current battery level
+*
+* \retval value  battery level [  0: USB,
+*                                 1: Min level,
+*                                 x: level
+*                               254: fully charged,
+*                               255: Error]
+*/
 uint8_t BoardGetBatteryLevel( void )
 {
-    return 254;
-//    volatile uint8_t batteryLevel = 0;
-//    uint16_t batteryVoltage = 0;
-//
-//    if( GpioRead( &UsbDetect ) == 1 )
-//    {
-//        batteryLevel = 0;
-//    }
-//    else
-//    {
-//        batteryVoltage = BoardGetPowerSupply( );
-//
-//        if( batteryVoltage >= BATTERY_MAX_LEVEL )
-//        {
-//            batteryLevel = 254;
-//        }
-//        else if( ( batteryVoltage > BATTERY_MIN_LEVEL ) && ( batteryVoltage < BATTERY_MAX_LEVEL ) )
-//        {
-//            batteryLevel = ( ( 253 * ( batteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
-//        }
-//        else if( batteryVoltage <= BATTERY_SHUTDOWN_LEVEL )
-//        {
-//            batteryLevel = 255;
-//            //GpioInit( &DcDcEnable, DC_DC_EN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-//            //GpioInit( &BoardPowerDown, BOARD_POWER_DOWN, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-//        }
-//        else // BATTERY_MIN_LEVEL
-//        {
-//            batteryLevel = 1;
-//        }
-//    }
-//    return batteryLevel;
+    volatile uint8_t batteryLevel = 0;
+    uint16_t batteryVoltage = BoardGetBatteryVoltage();
+
+    // Detect if it is conNected to USB
+    if( batteryVoltage > 3310 )
+    {
+        batteryLevel = 0;
+    }
+    else if( batteryVoltage >= BATTERY_MAX_LEVEL )
+    {
+    	batteryLevel = 254;
+    }
+    else if( ( batteryVoltage > BATTERY_MIN_LEVEL ) && ( batteryVoltage < BATTERY_MAX_LEVEL ) )
+	{
+    	batteryLevel = ( ( 253 * ( batteryVoltage - BATTERY_MIN_LEVEL ) ) / ( BATTERY_MAX_LEVEL - BATTERY_MIN_LEVEL ) ) + 1;
+	}
+	else if( batteryVoltage <= BATTERY_MIN_LEVEL )
+	{
+            batteryLevel = 255;
+    }
+
+    return batteryLevel;
 }
 
 
