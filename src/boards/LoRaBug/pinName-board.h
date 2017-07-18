@@ -16,19 +16,19 @@
  *
  * Since we cannot have macro names in an enumeration, we must have separate names.
  */
-#define MCU_PINS           \
+#define MCU_PINS               \
 	PIN_IOID_0  = IOID_0,  \
 	PIN_IOID_1  = IOID_1,  \
-    PIN_IOID_2  = IOID_2,  \
-    PIN_IOID_3  = IOID_3,  \
-    PIN_IOID_4  = IOID_4,  \
-    PIN_IOID_5  = IOID_5,  \
-    PIN_IOID_6  = IOID_6,  \
-    PIN_IOID_7  = IOID_7,  \
-    PIN_IOID_8  = IOID_8,  \
-    PIN_IOID_9  = IOID_9,  \
-    PIN_IOID_10 = IOID_10, \
-    PIN_IOID_11 = IOID_11, \
+	PIN_IOID_2  = IOID_2,  \
+	PIN_IOID_3  = IOID_3,  \
+	PIN_IOID_4  = IOID_4,  \
+	PIN_IOID_5  = IOID_5,  \
+	PIN_IOID_6  = IOID_6,  \
+	PIN_IOID_7  = IOID_7,  \
+	PIN_IOID_8  = IOID_8,  \
+	PIN_IOID_9  = IOID_9,  \
+	PIN_IOID_10 = IOID_10, \
+	PIN_IOID_11 = IOID_11, \
 	PIN_IOID_12 = IOID_12, \
 	PIN_IOID_13 = IOID_13, \
 	PIN_IOID_14 = IOID_14, \
@@ -49,5 +49,5 @@
 	PIN_IOID_29 = IOID_29, \
 	PIN_IOID_30 = IOID_30, \
 	PIN_IOID_31 = IOID_31
-    
+
 #endif // __PIN_NAME_MCU_H__
