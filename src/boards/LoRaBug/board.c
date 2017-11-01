@@ -23,11 +23,25 @@
 static Task_Struct loraTaskStruct;
 static Char loraTaskStack[LORATASKSTACKSIZE];
 static void loraTaskFxn(UArg arg0, UArg arg1);
+static bool loraTaskEnabled = false;
 static void StartLoraTask();
+static void EnableLoraTask();
+static void DisableLoraTask();
 
 /* Mailbox parameters for callback task */
 #define ISR_WORKER_QUEUE_SIZE 10
 static Mailbox_Handle clbkkMbox;
+
+/* Pin configuration for spi, when in sleep mode (deinit'ed) */
+static PIN_Handle sxSpiSleepPinHandle;
+static PIN_State sxSpiSleepPinState;
+// Note: Simple PIN_INPUT_EN | PIN_PULL_DOWN does not work
+static PIN_Config sxSpiSleepPinTable[] = {
+     Board_SX_MOSI | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW,
+     Board_SX_MISO | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW,
+     Board_SX_SCK  | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW,
+     PIN_TERMINATE
+};
 
 /*!
  * Flag to indicate if the MCU is Initialized
@@ -93,32 +107,45 @@ void BoardInitPeriph( void )
 
 void BoardInitMcu(void)
 {
-    clbkkMbox = Mailbox_create(sizeof(isr_worker_t), ISR_WORKER_QUEUE_SIZE, NULL, NULL);
-    if (clbkkMbox == NULL)
-    {
-        System_abort("Failed to create lora callback mailbox");
-    }
-
-    SpiInit( &SX1276.Spi, (PinNames)Board_SX_MOSI, (PinNames)Board_SX_MISO, (PinNames)Board_SX_SCK, (PinNames)NC );
-    SX1276IoInit( );
-
-    StartLoraTask( );
-
     if( McuInitialized == false )
     {
         McuInitialized = true;
+
+        clbkkMbox = Mailbox_create(sizeof(isr_worker_t), ISR_WORKER_QUEUE_SIZE, NULL, NULL);
+        if (clbkkMbox == NULL)
+        {
+            System_abort("Failed to create lora callback mailbox");
+        }
+        StartLoraTask();
+
 //        if( GetBoardPowerSource( ) == BATTERY_POWER )
 //        {
 //            CalibrateSystemWakeupTime( );
 //        }
+    } else {
+        /* Close SPI sleep profile */
+        PIN_close(sxSpiSleepPinHandle);
     }
 
+    SpiInit( &SX1276.Spi, (PinNames)Board_SX_MOSI, (PinNames)Board_SX_MISO, (PinNames)Board_SX_SCK, (PinNames)NC );
+    SX1276IoInit( );
+    EnableLoraTask();
 }
 
 void BoardDeInitMcu( void )
 {
+    DisableLoraTask();
     SpiDeInit( &SX1276.Spi );
     SX1276IoDeInit( );
+
+    /* Set SPI MOSI, MISO, and SCK lines to output low */
+    sxSpiSleepPinHandle = PIN_open(&sxSpiSleepPinState, sxSpiSleepPinTable);
+    if (sxSpiSleepPinHandle == NULL)
+    {
+        System_abort("Failed to open board SX SPI Sleep pins\n");
+    }
+
+    /* we assume that elsewhere in the program the nRST, nCS, and both antenna control lines are configured for sleep already */
 }
 
 uint32_t BoardGetRandomSeed( void )
@@ -240,10 +267,20 @@ static void StartLoraTask() {
                    NULL);
 }
 
+static void EnableLoraTask() {
+    loraTaskEnabled = true;
+}
+
+static void DisableLoraTask() {
+    loraTaskEnabled = false;
+}
+
 void ScheduleISRCallback(isr_worker_t callback) {
     assert(callback);
-    if(!Mailbox_post(clbkkMbox, (Ptr)(&callback), BIOS_NO_WAIT)) {
-        System_printf("Failed to post a LoRa ISR callback\n");
+    if (loraTaskEnabled) {
+        if(!Mailbox_post(clbkkMbox, (Ptr)(&callback), BIOS_NO_WAIT)) {
+            System_printf("Failed to post a LoRa ISR callback\n");
+        }
     }
 }
 
@@ -269,7 +306,9 @@ static void loraTaskFxn(UArg arg0, UArg arg1)
         }
         assert(callback);
 
-        callback();
+        if (loraTaskEnabled) {
+            callback();
+        }
     }
 }
 

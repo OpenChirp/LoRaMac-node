@@ -195,8 +195,8 @@ void SX1276AntSwInit( void )
 
 void SX1276AntSwDeInit( void )
 {
-    GpioInit( &AntSwitchDP, (PinNames)Board_SX_RF_CTRL1, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
-    GpioInit( &AntSwitchDM, (PinNames)Board_SX_RF_CTRL2, PIN_OUTPUT, PIN_OPEN_DRAIN, PIN_NO_PULL, 0 );
+    GpioInit( &AntSwitchDP, (PinNames)Board_SX_RF_CTRL1, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &AntSwitchDM, (PinNames)Board_SX_RF_CTRL2, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
 void SX1276SetAntSw( uint8_t opMode )

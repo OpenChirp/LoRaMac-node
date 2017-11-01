@@ -146,8 +146,8 @@ void GpioMcuInit(Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config,
         //	System_abort("Failed to add pin to handle\n");
         //}
         // now ensure the config is set if caller is
-        // just reconfiguring pin
-        status = PIN_setConfig(pinHandle, PIN_BM_ALL, pconfig);
+        // just reconfiguring pin - do not change interrupt config
+        status = PIN_setConfig(pinHandle, PIN_BM_ALL & (~PIN_BM_IRQ), pconfig);
         if (status != PIN_SUCCESS)
         {
             System_abort("Failed to set pin's new config\n");
