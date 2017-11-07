@@ -62,14 +62,15 @@ void SX1276IoInit( void )
 {
     // We will ignore the PinNames enum scheme, since we have
     // already enumerated pins and their roles elsewhere
-    GpioInit( &SX1276.Spi.Nss, (PinNames)Board_SX_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_PULL_UP, 1 );
+    GpioInit( &SX1276.Spi.Nss, (PinNames)Board_SX_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
 
-    GpioInit( &SX1276.DIO0, (PinNames)Board_SX_DIO0, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO1, (PinNames)Board_SX_DIO1, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO2, (PinNames)Board_SX_DIO2, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO3, (PinNames)Board_SX_DIO3, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO4, (PinNames)Board_SX_DIO4, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
-    GpioInit( &SX1276.DIO5, (PinNames)Board_SX_DIO5, PIN_INPUT, PIN_PUSH_PULL, PIN_PULL_UP, 0 );
+    // It seems like the SX1276 drives these pins without PullUps
+    GpioInit( &SX1276.DIO0, (PinNames)Board_SX_DIO0, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO1, (PinNames)Board_SX_DIO1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO2, (PinNames)Board_SX_DIO2, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO3, (PinNames)Board_SX_DIO3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO4, (PinNames)Board_SX_DIO4, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    GpioInit( &SX1276.DIO5, (PinNames)Board_SX_DIO5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
 }
 
 void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
@@ -84,14 +85,7 @@ void SX1276IoIrqInit( DioIrqHandler **irqHandlers )
 
 void SX1276IoDeInit( void )
 {
-    GpioInit( &SX1276.Spi.Nss, (PinNames)Board_SX_NSS, PIN_OUTPUT, PIN_PUSH_PULL, PIN_NO_PULL, 1 );
-
-    GpioInit( &SX1276.DIO0, (PinNames)Board_SX_DIO0, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO1, (PinNames)Board_SX_DIO1, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO2, (PinNames)Board_SX_DIO2, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO3, (PinNames)Board_SX_DIO3, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO4, (PinNames)Board_SX_DIO4, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
-    GpioInit( &SX1276.DIO5, (PinNames)Board_SX_DIO5, PIN_INPUT, PIN_PUSH_PULL, PIN_NO_PULL, 0 );
+    // NSS and all DIO should be in conflict free configurations already from SX1276IoInit.
 }
 
 void SX1276SetRfTxPower( int8_t power )
