@@ -1,6 +1,12 @@
 /**
  * This is the HAL implementation of SPI.
  *
+ * From lots of experimentation, we can say that the CC2650 has
+ * the following idle SPI states during active and sleep modes:
+ * MISO - Pulled low (would think this is the internal pulldown)
+ * MOSI - HIgh-Z (this is a major problem for the SX1276)
+ * CLK - Pulled low (I would guess this is being driven low)
+ *
  * @author Craig Hesling
  * @date Jan 7, 2017
  */
@@ -12,6 +18,53 @@
 #include <ti/drivers/PIN.h>
 #include <ti/drivers/SPI.h>
 #include <ti/sysbios/gates/GateMutexPri.h>
+#include <ti/drivers/Power.h>
+#include <ti/drivers/power/PowerCC26XX.h>
+#include <ti/drivers/spi/SPICC26XXDMA.h>
+
+/*
+ *  ======== spiMosiCorrect ========
+ *  This functions is called to notify the us of an imminent transition
+ *  in to sleep mode or from sleep mode.
+ *
+ *  @pre    Function assumes that clientArg is a pointer to an Spi_t that has already been opened.
+ */
+static int spiMosiCorrect(unsigned int eventType, uintptr_t eventArg, uintptr_t clientArg)
+{
+    Spi_t *spi;
+    SPICC26XXDMA_Object *spiObject;
+    SPICC26XXDMA_HWAttrsV1 const *spiHwAttrs;
+
+    spi = (Spi_t *)clientArg;
+    spiObject = ((SPI_Handle) spi->Spi)->object;
+    spiHwAttrs = ((SPI_Handle) spi->Spi)->hwAttrs;
+
+    /**
+     * What we want to do here is configure the IO mux to connect MOSI to the GPIO
+     * peripheral when we go to sleep and connect it back to SSI_TX when we wake up.
+     * The SPI driver set the GPIO module for MOSI to the correct output settings
+     * before it connected it to SSI_TX.
+     */
+	switch (eventType) {
+		case PowerCC26XX_ENTERING_STANDBY:
+		case PowerCC26XX_ENTERING_SHUTDOWN:
+		    // Save MOSI's old pin MUX config
+		    spi->mosimuxold = PINCC26XX_getMux(spiHwAttrs->mosiPin);
+		    // Assign MOSI to the default GPIO peripheral
+		    if (PINCC26XX_setMux(spiObject->pinHandle, spiHwAttrs->mosiPin, -1) != PIN_SUCCESS) {
+                System_abort("Failed to reassign MOSI to GPIO peripheral\n");
+            }
+		    break;
+		case PowerCC26XX_AWAKE_STANDBY:
+		    // Assign MOSI back to the SSI peripheral
+            if (PINCC26XX_setMux(spiObject->pinHandle, spiHwAttrs->mosiPin, spi->mosimuxold) != PIN_SUCCESS) {
+                System_abort("Failed to reassign MOSI back to the SSI peripheral\n");
+            }
+		    break;
+	}
+
+    return Power_NOTIFYDONE;
+}
 
 /**
  * @note We currently ignore all given pins for SPI
@@ -29,8 +82,13 @@ void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames 
     SpiFrequency( obj, 10000000 );
 
     IArg key = GateMutexPri_enter(GateMutexPri_handle(&obj->gmutex));
-	// Open the SPI and perform the transfer
+	// Open the SPI peripheral
 	obj->Spi = SPI_open(Board_SPI0, &obj->Params);
+	// Setup callback for setting MOSI to low on sleep
+	Power_registerNotify(&obj->pwrnotifobj,
+	                     PowerCC26XX_ENTERING_STANDBY|PowerCC26XX_AWAKE_STANDBY|PowerCC26XX_ENTERING_SHUTDOWN,
+	                     (Fxn)spiMosiCorrect,
+	                     (UInt32)obj);
 	GateMutexPri_leave(GateMutexPri_handle(&obj->gmutex), key);
 	if (!obj->Spi){
 	    System_abort("Failed to open SPI for SX1276\n");
@@ -40,6 +98,8 @@ void SpiInit( Spi_t *obj, PinNames mosi, PinNames miso, PinNames sclk, PinNames 
 void SpiDeInit( Spi_t *obj )
 {
     IArg key = GateMutexPri_enter(GateMutexPri_handle(&obj->gmutex));
+    // Unregister the callback for setting MOSI to low on sleep
+    Power_unregisterNotify(&obj->pwrnotifobj);
     SPI_close(obj->Spi);
     // We do not want to close NSS pin, since SX1276 seems to go active if the line goes low
     GateMutexPri_leave(GateMutexPri_handle(&obj->gmutex), key);
