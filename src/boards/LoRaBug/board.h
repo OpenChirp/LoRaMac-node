@@ -29,13 +29,9 @@ Maintainer: Andreas Pella (IMST GmbH), Miguel Luis and Gregory Cristian
 #include "sx1276/sx1276.h"
 #include "sx1276-board.h"
 #include "cmsis_replacement.h"
-#include <LORABUG_V3.1.h>
-#include <driverlib/aon_batmon.h> //Battery readings
-
-//////// DEBUG STUFF ////////////
-#include "io.h"
 #include "timer.h"
-/////////////////////////////////
+#include <LORABUG.h>
+#include <driverlib/aon_batmon.h> //Battery readings
 
 
 #define USE_BAND_915_HYBRID

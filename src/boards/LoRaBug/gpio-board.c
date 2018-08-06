@@ -6,11 +6,10 @@
  */
 
 #include <assert.h>
-
 #include "board.h"
 #include "gpio-board.h"
 
-#include <LORABUG_V3.1.h>
+#include <LORABUG.h>
 
 /* XDCtools Header files */
 #include <xdc/runtime/System.h>
