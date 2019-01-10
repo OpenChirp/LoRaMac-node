@@ -5,9 +5,12 @@
  * @date April 26, 2017
  */
 
+#include <stdint.h>
+
 #include <ti/sysbios/knl/Clock.h>
-//#include <xdc/runtime/Timestamp.h> // Currently using Clock_getTicks() instead
 #include <xdc/std.h>
+#include <xdc/runtime/Types.h> // Types_Timestamp64
+#include <xdc/runtime/Timestamp.h>
 #include <driverlib/debug.h>
 
 #include <assert.h>
@@ -250,6 +253,8 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
     Clock_setTimeout(Clock_handle((Clock_Struct*)obj), (UInt32)(value * TIME_MS));
 }
 
+#define TIMESTAMP64_TO_UINT64(timestamp) (((uint64_t)((timestamp).hi))<<32 | ((uint64_t)((timestamp).lo)))
+
 //TimerTime_t TimerGetValue( void )
 //{
 //    return RtcGetElapsedAlarmTime( );
@@ -257,16 +262,23 @@ void TimerSetValue( TimerEvent_t *obj, uint32_t value )
 //
 TimerTime_t TimerGetCurrentTime( void )
 {
-//    return (TimerTime_t)Timestamp_get32();
-    return (TimerTime_t) Clock_getTicks();
-//    return 0;
-//    return RtcGetTimerValue( );
+    Types_Timestamp64 now;
+    Types_FreqHz freq;
+    Timestamp_get64(&now);
+    Timestamp_getFreq(&freq);
 
+    uint64_t now64 = TIMESTAMP64_TO_UINT64(now);
+    uint64_t freq64 = TIMESTAMP64_TO_UINT64(freq);
+
+    return (TimerTime_t) (now64 * 1e3) / freq64;
 }
 
 TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
 {
     TimerTime_t now = TimerGetCurrentTime();
+    if (now < savedTime) {
+        return (UINT64_MAX - savedTime) + (now + 1);
+    }
     return now - savedTime;
 //    return RtcComputeElapsedTime( savedTime );
 }
@@ -274,6 +286,9 @@ TimerTime_t TimerGetElapsedTime( TimerTime_t savedTime )
 TimerTime_t TimerGetFutureTime( TimerTime_t eventInFuture )
 {
     TimerTime_t now = TimerGetCurrentTime();
+    if (eventInFuture < now) {
+        return (UINT64_MAX - now) + (eventInFuture + 1);
+    }
     return eventInFuture - now;
 //    return RtcComputeFutureEventTime( eventInFuture );
 }

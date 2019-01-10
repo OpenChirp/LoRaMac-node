@@ -15,6 +15,7 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __TIMER_Hdd__
 #define __TIMER_Hdd__
 
+#include <stdint.h>
 #include <ti/sysbios/knl/Clock.h>
 
 /*!
@@ -26,7 +27,7 @@ typedef Clock_Struct TimerEvent_t;
  * \brief Timer time variable definition
  */
 #ifndef TimerTime_t
-typedef uint32_t TimerTime_t;
+typedef uint64_t TimerTime_t;
 #endif
 
 /*!

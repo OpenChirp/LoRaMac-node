@@ -15,6 +15,8 @@ Maintainer: Miguel Luis and Gregory Cristian
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+#include <stdint.h>
+
 /*!
  * \brief Timer object description
  */
@@ -31,7 +33,7 @@ typedef struct TimerEvent_s
  * \brief Timer time variable definition
  */
 #ifndef TimerTime_t
-typedef uint32_t TimerTime_t;
+typedef uint64_t TimerTime_t;
 #endif
 
 /*!
